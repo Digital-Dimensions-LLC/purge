@@ -1,10 +1,12 @@
-const Discord = require('discord.js');
+const Discord = require('azrael-djs');
 const botconfig = require('./botconfig.json');
 const config = require('./botconfig.json');
 const messageHandler = require('./messageHandler.js');
-const bot = new Discord.Client();
+const bot = new Discord.Client({
+            intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "MESSAGE_CONTENT"]
+})
 const deleter = require('./deleter.js');
-let guild = bot.guilds.cache.get("882238507001741342");
+let guild = bot.guilds.cache.get(botconfig.guild);
 
 let Guild = null;
 
@@ -18,11 +20,13 @@ bot.on("ready", async () => {
   botconfig.channels.forEach(c => {
     c = guild.channels.cache.get(c);
     switch (c.type) {
-      case 'text':
+      case 'GUILD_TEXT':
         channels.push(c);
         break;
-      case 'category':
-        channels = channels.concat(guild.channels.cache.filter(_c => _c.parentID === c.id && _c.type === 'text').array());
+      case 'GUILD_CATEGORY':
+        for (let chan of guild.channels.cache.filter(_c => _c.parentID === c.id && _c.type === 'GUILD_TEXT').values()) {
+            channels.push(chan);
+        }
         break;
     }
   });
@@ -41,7 +45,7 @@ process.on('unhandledRejection', err => console.error(`Uncaught Promise Rejectio
 bot.on('guildMemberRemove', member => {
   if (member.guild.id !== botconfig.guild) return;
   const logChannel = bot.channels.cache.get(botconfig.logChannel);
-  const guild = bot.guilds.cache.get("882238507001741342");
+  const guild = bot.guilds.cache.get(botconfig.guild);
   // logChannel.send(`Deleting messages from \`${member.user.tag}\``);
   deleter.delete(member.user, channels, n => {
     let deletedembed = new Discord.MessageEmbed()
