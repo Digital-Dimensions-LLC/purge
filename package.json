@@ -1,10 +1,10 @@
 {
   "name": "azrael-purge",
-  "version": "1.0.0",
-  "description": "Azrael Advertising Server Purge Bot",
+  "version": "1.1.0",
+  "description": "Azrael Interactive LLC - Advertisement Purge Bot",
   "main": "index.js",
   "dependencies": {
-    "discord.js": "^12.5.3"
+    "azrael-djs": "^2.2.4"
   },
   "devDependencies": {},
   "scripts": {
