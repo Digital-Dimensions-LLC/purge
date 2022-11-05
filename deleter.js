@@ -1,13 +1,16 @@
 async function fetchChannels(channels){
 	let messages = [];
-	for(let i = 0; i < channels.length; i++){
-		await channels[i].messages.fetch().then(_messages => messages = messages.concat(_messages.array()));
+	for (let i = 0; i < channels.length; i++){
+		let msgs = await channels[i].messages.fetch();
+        for (let msg of msgs.values()) {
+            messages.push(msg);
+        }
 	}
 	return messages;
 }
 
 async function deleteMessages(messages){
-	for(let i = 0; i < messages.length; i++){
+	for (let i = 0; i < messages.length; i++){
 		await messages[i].delete();
 	}
 }
