@@ -1,28 +1,29 @@
-const Discord = require('discord.js');
+const Discord = require('azrael-djs');
 
 const handler = {};
 
 let ClientID = null,
   Guild = null;
 
-let addTextChannel = (textChannel, title, body, color, footer) => {
+let addTextChannel = (textChannel, title, body, color, footer, thumbnail) => {
   handler[textChannel] = {
     title,
     body,
     color,
-    footer
+    footer,
+    thumbnail
   };
 };
 
-let add = (channel, title, body, color, footer) => {
+let add = (channel, title, body, color, footer, thumbnail) => {
   switch (Guild.channels.cache.get(channel).type) {
-    case 'category':
+    case 'GUILD_CATEGORY':
       Guild.channels.cache.filter(c => c.parentID === channel).forEach(textChannel => {
-        addTextChannel(textChannel.id, title, body, color, footer);
+        addTextChannel(textChannel.id, title, body, color, footer, thumbnail);
       });
       break;
-    case 'text':
-      addTextChannel(channel, title, body, color, footer);
+    case 'GUILD_TEXT':
+      addTextChannel(channel, title, body, color, footer, thumbnail);
       break;
   }
 };
@@ -34,7 +35,7 @@ let sendMessage = channel => {
       name: "** **",
       value: handler[channel]['body']
     }]
-  }).setColor(handler[channel]['color']).setFooter(handler[channel]['footer']));
+  }).setColor(handler[channel]['color']).setThumbnail(handler[channel]['thumbnail']).setFooter(handler[channel]['footer']));
 };
 
 let deleteLastMessage = (channel, callback) => {
@@ -53,9 +54,9 @@ module.exports = {
     Guild = guild;
     messages.forEach(item => {
       if (item['channels']) return item['channels'].forEach(channel => {
-        add(channel, item['title'], item['body'], item['color'] || '#FFFFFF', item['footer']);
+        add(channel, item['title'], item['body'], item['color'] || '#FFFFFF', item['footer'], item['thumbnail']);
       });
-      add(item['channel'], item['title'], item['body'], item['color'] || '#FFFFFF', item['footer']);
+      add(item['channel'], item['title'], item['body'], item['color'] || '#FFFFFF', item['footer'], item['thumbnail']);
     });
     Object.keys(handler).forEach(channel => deleteLastMessage(Guild.channels.cache.get(channel), () => sendMessage(channel)));
   },
